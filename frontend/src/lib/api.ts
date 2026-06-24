@@ -107,6 +107,18 @@ export async function fetchCustomer(customerId: number) {
   return res.json();
 }
 
+export async function uploadFile(file: File): Promise<{ filename: string; url: string; type: string } | null> {
+  try {
+    const form = new FormData();
+    form.append("file", file);
+    const res = await fetch(`${API_BASE}/api/uploads`, { method: "POST", body: form });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 export async function checkVoiceStatus(): Promise<{ enabled: boolean }> {
   try {
     const res = await fetch(`${API_BASE}/api/voice/status`);

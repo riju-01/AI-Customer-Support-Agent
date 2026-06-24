@@ -40,3 +40,6 @@ TESTING_SCENARIOS.md
 
 # Local assets
 assets/
+
+# Uploaded files
+backend/app/uploads/

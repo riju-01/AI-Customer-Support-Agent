@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { startChat, sendMessage as sendChatMessage } from "@/lib/api";
 import { useVoice } from "@/lib/useVoice";
-import type { ChatMessage } from "@/lib/types";
+import type { ChatMessage, Attachment } from "@/lib/types";
 import MessageBubble from "./MessageBubble";
 import ChatInput from "./ChatInput";
 import VoiceOrb from "./VoiceOrb";
@@ -57,7 +57,7 @@ export default function HomeClient() {
     initChat();
   }, [initChat]);
 
-  const handleSend = async (content: string) => {
+  const handleSend = async (content: string, attachments?: Attachment[]) => {
     if (!sessionId || isSending) return;
 
     voice.stopSpeaking();
@@ -69,6 +69,7 @@ export default function HomeClient() {
         type: "user",
         content,
         timestamp: new Date(),
+        attachments,
       },
     ]);
 

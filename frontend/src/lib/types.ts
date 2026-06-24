@@ -1,8 +1,15 @@
+export interface Attachment {
+  url: string;
+  type: "image" | "video";
+  filename: string;
+}
+
 export interface ChatMessage {
   id: string;
   type: "user" | "agent" | "system";
   content: string;
   timestamp: Date;
+  attachments?: Attachment[];
 }
 
 export interface Session {
