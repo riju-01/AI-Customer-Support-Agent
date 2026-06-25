@@ -119,6 +119,12 @@ async def get_orders():
         db.close()
 
 
+@router.get("/actions")
+async def get_actions():
+    """Return all agent actions (refunds, escalations, cancellations, etc.)."""
+    return reasoning_logger.get_actions()
+
+
 @router.get("/stream")
 async def admin_stream(request: Request):
     """SSE endpoint that streams reasoning logs to the admin dashboard in real-time."""

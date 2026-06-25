@@ -7,11 +7,12 @@ import json
 
 
 class ReasoningLogger:
-    """Stores reasoning logs in-memory and broadcasts to connected admin WebSocket clients."""
+    """Stores reasoning logs in-memory and broadcasts to connected admin clients."""
 
     def __init__(self):
         self.logs: dict[str, list[dict]] = {}
         self.sessions: dict[str, dict] = {}
+        self.actions: list[dict] = []
         self._admin_connections: list[asyncio.Queue] = []
 
     def register_admin(self) -> asyncio.Queue:
@@ -83,6 +84,38 @@ class ReasoningLogger:
             self.logs[session_id] = []
         self.logs[session_id].append(entry)
         self._broadcast({"type": "reasoning_log", "entry": entry})
+
+    def log_action(
+        self,
+        session_id: str,
+        action_type: str,
+        *,
+        refund_number: str | None = None,
+        order_number: str | None = None,
+        customer_name: str | None = None,
+        customer_email: str | None = None,
+        status: str | None = None,
+        amount: float | None = None,
+        details: dict | None = None,
+    ):
+        action = {
+            "id": f"act-{len(self.actions) + 1}",
+            "session_id": session_id,
+            "action_type": action_type,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "refund_number": refund_number,
+            "order_number": order_number,
+            "customer_name": customer_name,
+            "customer_email": customer_email,
+            "status": status,
+            "amount": amount,
+            "details": details or {},
+        }
+        self.actions.append(action)
+        self._broadcast({"type": "agent_action", "action": action})
+
+    def get_actions(self) -> list[dict]:
+        return list(self.actions)
 
     def get_session_logs(self, session_id: str) -> list[dict]:
         return self.logs.get(session_id, [])

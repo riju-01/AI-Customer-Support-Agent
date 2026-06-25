@@ -40,9 +40,10 @@ export function useVoice() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     setSttAvailable(!!SpeechRecognition);
 
-    checkVoiceStatus().then((status) => {
-      setTtsAvailable(status.enabled);
-      setVoiceEnabled(status.enabled);
+    checkVoiceStatus().then((status: { enabled: boolean; quota_exhausted?: boolean }) => {
+      const available = status.enabled && !status.quota_exhausted;
+      setTtsAvailable(available);
+      setVoiceEnabled(available);
     });
   }, []);
 
@@ -88,14 +89,20 @@ export function useVoice() {
     async (text: string) => {
       if (!voiceEnabled || !ttsAvailable) return;
 
-      // Stop any current playback
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
       }
 
       setIsSpeaking(true);
-      const audioData = await speakText(text);
+      const { audio: audioData, quotaExhausted } = await speakText(text);
+
+      if (quotaExhausted) {
+        setTtsAvailable(false);
+        setVoiceEnabled(false);
+        setIsSpeaking(false);
+        return;
+      }
 
       if (!audioData) {
         setIsSpeaking(false);

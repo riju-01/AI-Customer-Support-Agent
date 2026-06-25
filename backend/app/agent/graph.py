@@ -68,7 +68,7 @@ def agent_node(state: AgentState) -> dict:
 
 
 def tool_result_node(state: AgentState) -> dict:
-    """Execute tools and log their results."""
+    """Execute tools and log their results, detecting concrete agent actions."""
     tool_node = ToolNode(ALL_TOOLS)
     result = tool_node.invoke(state)
     session_id = state.get("session_id", "unknown")
@@ -102,7 +102,70 @@ def tool_result_node(state: AgentState) -> dict:
                 reasoning=f"Tool '{tool_name}' returned result.",
             )
 
+            _detect_action(session_id, tool_name, content)
+
     return result
+
+
+def _detect_action(session_id: str, tool_name: str, content) -> None:
+    """Detect concrete actions from tool results and log them."""
+    if not isinstance(content, dict) or not content.get("success"):
+        return
+
+    if tool_name == "process_refund":
+        is_return = content.get("return_required", False)
+        reasoning_logger.log_action(
+            session_id,
+            action_type="return_scheduled" if is_return else "refund_approved",
+            refund_number=content.get("refund_number"),
+            order_number=content.get("order_number"),
+            status=content.get("status"),
+            amount=content.get("refund_amount"),
+            details={
+                "refund_type": content.get("refund_type"),
+                "payment_method": content.get("payment_method"),
+                "return_shipping_paid_by": content.get("return_shipping_paid_by"),
+                "message": content.get("message"),
+            },
+        )
+
+    elif tool_name == "deny_refund":
+        reasoning_logger.log_action(
+            session_id,
+            action_type="refund_denied",
+            refund_number=content.get("refund_number"),
+            order_number=content.get("order_number"),
+            status="DENIED",
+            details={
+                "violation_reasons": content.get("violation_reasons"),
+                "policy_sections_cited": content.get("policy_sections_cited"),
+            },
+        )
+
+    elif tool_name == "escalate_to_human":
+        reasoning_logger.log_action(
+            session_id,
+            action_type="escalated_to_human",
+            refund_number=content.get("refund_number"),
+            order_number=content.get("order_number"),
+            status="ESCALATED",
+            details={
+                "reason": content.get("reason"),
+                "message": content.get("message"),
+            },
+        )
+
+    elif tool_name == "cancel_order":
+        reasoning_logger.log_action(
+            session_id,
+            action_type="order_cancelled",
+            order_number=content.get("order_number"),
+            status="CANCELLED",
+            amount=content.get("refund_amount"),
+            details={
+                "message": content.get("message"),
+            },
+        )
 
 
 def should_continue(state: AgentState) -> str:

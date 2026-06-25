@@ -4,11 +4,11 @@ from datetime import datetime, timedelta
 from .db import SessionLocal, init_db
 from .models import Customer, Order, Refund, AccountStatus, OrderStatus, RefundStatus
 
-TODAY = datetime(2026, 6, 22)
+NOW = datetime.now()
 
 
 def days_ago(n: int) -> datetime:
-    return TODAY - timedelta(days=n)
+    return NOW - timedelta(days=n)
 
 
 CUSTOMERS = [

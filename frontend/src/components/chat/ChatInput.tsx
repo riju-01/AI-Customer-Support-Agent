@@ -189,9 +189,6 @@ export default function ChatInput({ onSend, disabled, isListening, sttAvailable,
           </svg>
         </button>
       </div>
-      <p className="text-[10px] text-gray-400 text-center mt-2">
-        {isUploading ? "Uploading files..." : isListening ? "Speak now — Zara is listening..." : "Zara is an AI agent. Responses are based on ShopEase refund policy."}
-      </p>
     </div>
   );
 }

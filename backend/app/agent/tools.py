@@ -185,10 +185,13 @@ def check_refund_eligibility(order_number: str, reason: str) -> dict:
 
         # Check 5: Valid refund reason (Section 3)
         valid_reasons = [
-            "defective", "damaged", "incorrect", "wrong item",
-            "materially different", "not as described",
-            "lost in shipment", "lost", "never received",
-            "missing components", "missing parts", "incomplete",
+            "defective", "faulty", "malfunction", "not working", "broken",
+            "damaged", "cracked", "scratched", "dented",
+            "incorrect", "wrong item", "wrong product", "wrong size", "wrong color",
+            "materially different", "not as described", "not as advertised", "doesn't match",
+            "lost in shipment", "lost", "never received", "not delivered",
+            "missing components", "missing parts", "incomplete", "missing",
+            "not included", "components missing", "parts missing",
         ]
         reason_lower = reason.strip().lower()
         reason_valid = any(vr in reason_lower for vr in valid_reasons)
@@ -379,7 +382,10 @@ def process_refund(order_number: str, reason: str, refund_type: str = "full") ->
 
         reason_lower = reason.strip().lower()
         is_lost = any(kw in reason_lower for kw in ["lost", "never received", "lost in shipment"])
-        is_company_error = any(kw in reason_lower for kw in ["incorrect", "wrong item", "defective", "damaged", "missing component", "missing part"])
+        is_company_error = any(kw in reason_lower for kw in [
+            "incorrect", "wrong item", "wrong product", "defective", "damaged",
+            "missing component", "missing part", "missing", "not included", "incomplete",
+        ])
 
         refund_count = db.query(Refund).count() + 1
         refund = Refund(

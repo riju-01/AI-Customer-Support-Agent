@@ -37,7 +37,7 @@ async def start_chat():
         _sessions[session_id] = messages
 
         last_msg = messages[-1]
-        greeting = last_msg.content if hasattr(last_msg, "content") else str(last_msg)
+        greeting = _extract_text(last_msg.content) if hasattr(last_msg, "content") else str(last_msg)
 
         return {
             "session_id": session_id,
@@ -78,7 +78,7 @@ async def send_message(req: ChatRequest):
 
             _sessions[session_id] = result["messages"]
             last_msg = result["messages"][-1]
-            response_content = last_msg.content if hasattr(last_msg, "content") else str(last_msg)
+            response_content = _extract_text(last_msg.content) if hasattr(last_msg, "content") else str(last_msg)
 
             customer_info = _extract_customer_info(result["messages"])
             if customer_info:
@@ -95,6 +95,25 @@ async def send_message(req: ChatRequest):
         yield _sse_event("done", {})
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+
+def _extract_text(content) -> str:
+    """Safely extract plain text from LangChain message content.
+    
+    Gemini can return content as a string, a list of dicts with 'text' keys,
+    or other structured formats. This normalises everything to a string.
+    """
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for part in content:
+            if isinstance(part, str):
+                parts.append(part)
+            elif isinstance(part, dict) and "text" in part:
+                parts.append(part["text"])
+        return "".join(parts)
+    return str(content)
 
 
 def _sse_event(event_type: str, data: dict) -> str:

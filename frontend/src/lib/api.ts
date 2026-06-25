@@ -82,6 +82,9 @@ export function createAdminStream(
   es.addEventListener("reasoning_log", (e) => {
     onEvent("reasoning_log", JSON.parse((e as MessageEvent).data));
   });
+  es.addEventListener("agent_action", (e) => {
+    onEvent("agent_action", JSON.parse((e as MessageEvent).data));
+  });
   es.addEventListener("ping", () => {});
 
   return es;
@@ -94,6 +97,11 @@ export async function fetchSessions() {
 
 export async function fetchSessionLogs(sessionId: string) {
   const res = await fetch(`${API_BASE}/api/admin/sessions/${sessionId}/logs`);
+  return res.json();
+}
+
+export async function fetchActions() {
+  const res = await fetch(`${API_BASE}/api/admin/actions`);
   return res.json();
 }
 
@@ -128,16 +136,23 @@ export async function checkVoiceStatus(): Promise<{ enabled: boolean }> {
   }
 }
 
-export async function speakText(text: string): Promise<ArrayBuffer | null> {
+export async function speakText(text: string): Promise<{ audio: ArrayBuffer | null; quotaExhausted: boolean }> {
   try {
     const res = await fetch(`${API_BASE}/api/voice/speak`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
     });
-    if (!res.ok) return null;
-    return res.arrayBuffer();
+    if (!res.ok) return { audio: null, quotaExhausted: false };
+
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      const data = await res.json();
+      return { audio: null, quotaExhausted: !!data.fallback };
+    }
+
+    return { audio: await res.arrayBuffer(), quotaExhausted: false };
   } catch {
-    return null;
+    return { audio: null, quotaExhausted: false };
   }
 }

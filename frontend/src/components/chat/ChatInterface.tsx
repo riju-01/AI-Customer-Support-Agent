@@ -211,6 +211,7 @@ export default function ChatInterface() {
               { label: "Cancel my order", icon: "✕" },
               { label: "Track my package", icon: "📦" },
               { label: "Damaged item", icon: "⚠" },
+              { label: "Talk to a human agent", icon: "🧑" },
             ].map((action) => (
               <button
                 key={action.label}
@@ -240,6 +241,21 @@ export default function ChatInterface() {
           }
         }}
       />
+
+      {/* Escalate to Human — fixed below input */}
+      <div className="px-4 py-2 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
+        <p className="text-[10px] text-gray-400">Zara is an AI agent. Responses are based on ShopEase refund policy.</p>
+        <button
+          onClick={() => handleSend("I'd like to speak with a human agent")}
+          disabled={!isConnected || isSending}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 rounded-lg border border-amber-400/30 hover:bg-amber-500/20 hover:border-amber-400 transition-all disabled:opacity-40 flex-shrink-0"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          Talk to Human
+        </button>
+      </div>
     </div>
   );
 }

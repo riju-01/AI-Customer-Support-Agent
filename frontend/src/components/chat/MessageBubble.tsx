@@ -7,8 +7,19 @@ interface Props {
   message: ChatMessage;
 }
 
+function safeText(content: unknown): string {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content
+      .map((p) => (typeof p === "string" ? p : typeof p === "object" && p && "text" in p ? (p as { text: string }).text : ""))
+      .join("");
+  }
+  return String(content ?? "");
+}
+
 export default function MessageBubble({ message }: Props) {
   const isUser = message.type === "user";
+  const text = safeText(message.content);
   const hasAttachments = message.attachments && message.attachments.length > 0;
 
   return (
@@ -53,7 +64,7 @@ export default function MessageBubble({ message }: Props) {
         )}
 
         {/* Text content */}
-        {message.content && message.content !== "(attached file)" && (
+        {text && text !== "(attached file)" && (
           <div
             className={`inline-block px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
               isUser
@@ -61,7 +72,7 @@ export default function MessageBubble({ message }: Props) {
                 : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-2xl rounded-bl-md border border-gray-200 dark:border-gray-700 shadow-sm"
             }`}
           >
-            {message.content}
+            {text}
           </div>
         )}
 

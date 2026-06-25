@@ -41,6 +41,20 @@ export interface ReasoningLogEntry {
   policy_sections?: number[];
 }
 
+export interface AgentAction {
+  id: string;
+  session_id: string;
+  action_type: "return_scheduled" | "refund_approved" | "refund_denied" | "escalated_to_human" | "order_cancelled";
+  timestamp: string;
+  refund_number?: string;
+  order_number?: string;
+  customer_name?: string;
+  customer_email?: string;
+  status?: string;
+  amount?: number;
+  details: Record<string, unknown>;
+}
+
 export interface AdminWSMessage {
   type:
     | "init"
