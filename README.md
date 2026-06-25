@@ -111,17 +111,6 @@ npm run dev
 | `escalate_to_human` | Escalate complex cases | 7, 19 |
 | `get_refund_policy` | Retrieve full policy document | - |
 
-## Demo Scenarios
-
-| Customer | Order | Scenario | Expected Result |
-|----------|-------|----------|-----------------|
-| Alice Johnson | ORD-1001 | Defective headphones, within 7 days | Return scheduled, refund after inspection |
-| Frank Liu | ORD-1006 | Outside 7-day window | DENIED (Section 5) |
-| Henry Patel | ORD-1008 | Digital software license | DENIED (Section 4) |
-| Leo Mendez | ORD-1012 | Flagged fraud account | BLOCKED (Sections 15, 24) |
-| Nathan Brooks | ORD-1014 | Pre-shipment cancel | Cancelled + full refund |
-| David Okafor | ORD-1004 | Lost in shipment | Approved directly, no return needed |
-
 ## Tech Stack
 
 - **LLM**: Google Gemini 2.5 Flash (free tier)
