@@ -8,38 +8,37 @@ The agent enforces a strict 26-section refund policy, validates every request ag
 
 ```mermaid
 graph TB
-    subgraph Frontend["Frontend (Next.js + Tailwind)"]
-        Chat["Customer Chat UI"]
+    subgraph Frontend["Frontend - Next.js"]
+        Chat["Customer Chat"]
         Admin["Admin Dashboard"]
-        Voice["Voice Pipeline<br/>STT: Web Speech API"]
+        VoiceUI["Voice - Web Speech API"]
     end
 
-    subgraph Backend["Backend (FastAPI + Python)"]
-        API["FastAPI Server"]
-        subgraph Agent["LangGraph Agent (ReAct Loop)"]
+    subgraph Backend["Backend - FastAPI"]
+        API["API Server"]
+        subgraph Agent["LangGraph ReAct Agent"]
             LLM["Gemini 2.5 Flash"]
-            Tools["10 Tools<br/>Policy Engine"]
+            Tools["10 Policy Tools"]
         end
-        Logger["Reasoning Logger<br/>+ Action Tracker"]
-        TTS["ElevenLabs TTS Proxy"]
+        Logger["Action Tracker"]
+        TTS["ElevenLabs TTS"]
     end
 
-    subgraph Data["Data Layer"]
-        DB["SQLite CRM DB<br/>15 Customer Profiles"]
-        Policy["Refund Policy<br/>26 Sections"]
+    subgraph DataLayer["Data"]
+        DB["SQLite CRM - 15 Profiles"]
+        Policy["Refund Policy - 26 Sections"]
     end
 
-    Chat -->|"SSE"| API
-    Admin -->|"SSE + REST"| API
-    Voice -->|"Speech-to-Text"| Chat
-    Chat -->|"TTS Request"| TTS
-
+    Chat -->|SSE| API
+    Admin -->|SSE + REST| API
+    VoiceUI --> Chat
+    Chat --> TTS
     API --> Agent
-    LLM <-->|"Tool Calls"| Tools
+    LLM --> Tools
     Tools --> DB
     Tools --> Policy
     Agent --> Logger
-    Logger -->|"Real-time Events"| Admin
+    Logger --> Admin
 ```
 
 ## Features
