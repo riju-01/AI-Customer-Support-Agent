@@ -36,13 +36,16 @@ The agent enforces a strict 26-section refund policy, validates every request ag
 
 ## Features
 
-- **AI Agent**: LangGraph ReAct loop with Gemini 2.5 Flash, 10 specialized tools
+- **AI Agent (Zara)**: LangGraph ReAct loop with Gemini 2.5 Flash, 10 specialized tools
 - **Strict Policy Enforcement**: 26-section refund policy with 7-day window, fraud detection, counterfeit claims
 - **Return-First Flow**: Eligible refunds schedule a return; refund processed only after item passes inspection (Sections 8, 9, 22)
 - **Mock CRM Database**: 15 customer profiles covering all edge cases (eligible, denied, fraud, digital, clearance, in-transit)
-- **Real-Time Chat**: SSE-based customer chat with typing indicators
-- **Admin Dashboard**: Live reasoning logs showing every tool call, decision, and policy citation
+- **Real-Time Chat**: SSE-based customer chat with typing indicators and file attachments (photos/videos)
+- **Admin Dashboard**: Two views — Reasoning Logs (every tool call, decision, policy citation) and Agent Actions (concrete actions: returns scheduled, refunds approved/denied, escalations, cancellations)
 - **Fraud Detection**: Account flagging, risk scoring, return-fraud history analysis
+- **Escalate to Human**: One-click escalation button; agent logs the escalation and confirms via customer's email on file
+- **Voice Pipeline**: ElevenLabs TTS + Web Speech API STT with graceful fallback to text-only when quota is exhausted
+- **Guardrails**: Agent stays in scope — refuses off-topic questions, prompt injection, and identity override attempts
 
 ## Quick Start
 
@@ -122,4 +125,5 @@ See [TESTING_SCENARIOS.md](TESTING_SCENARIOS.md) for all 15 copy-paste test scen
 - **Agent Framework**: LangGraph + LangChain
 - **Backend**: Python / FastAPI / SQLAlchemy / SQLite
 - **Frontend**: Next.js 16 / Tailwind CSS / TypeScript
-- **Communication**: SSE (real-time chat + admin logs)
+- **Communication**: SSE (real-time chat + admin logs + agent actions)
+- **Voice**: ElevenLabs TTS (backend proxy) + Web Speech API STT (browser)

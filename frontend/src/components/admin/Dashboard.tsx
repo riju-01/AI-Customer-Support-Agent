@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { createAdminStream, fetchSessionLogs } from "@/lib/api";
+import { createAdminStream, fetchSessionLogs, fetchActions } from "@/lib/api";
 import type { Session, ReasoningLogEntry, AgentAction } from "@/lib/types";
 import SessionList from "./SessionList";
 import ReasoningLog from "./ReasoningLog";
@@ -61,6 +61,11 @@ export default function Dashboard() {
     const es = createAdminStream(handleEvent);
     es.onopen = () => setConnected(true);
     es.onerror = () => setConnected(false);
+
+    fetchActions().then((data: AgentAction[]) => {
+      if (Array.isArray(data)) setActions(data);
+    }).catch(() => {});
+
     return () => es.close();
   }, [handleEvent]);
 
@@ -81,41 +86,36 @@ export default function Dashboard() {
   const activeSessions = sessions.filter((s) => s.status === "active").length;
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="flex h-screen w-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
       {/* Sidebar */}
-      <div className="w-80 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col">
+      <div className="w-64 flex-shrink-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col">
         {/* Logo header */}
-        <div className="p-5 border-b border-gray-200 dark:border-gray-800">
-          <div className="flex items-center gap-3 mb-4">
-            <Image src="/avatar.jpg" alt="Zara" width={36} height={36} className="w-9 h-9 rounded-lg object-cover shadow-sm" />
-            <div>
-              <h1 className="text-base font-semibold text-gray-800 dark:text-gray-100 tracking-tight">Zara Admin</h1>
-              <p className="text-[11px] text-gray-400">Agent Reasoning Monitor</p>
+        <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center gap-2.5 mb-3">
+            <Image src="/avatar.jpg" alt="Zara" width={32} height={32} className="w-8 h-8 rounded-lg object-cover shadow-sm flex-shrink-0" />
+            <div className="min-w-0">
+              <h1 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">Zara Admin</h1>
+              <p className="text-[10px] text-gray-400 truncate">Reasoning Monitor</p>
             </div>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-4 gap-2">
-            <div className="px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
-              <p className="text-lg font-bold text-gray-800 dark:text-gray-100">{sessions.length}</p>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wider">Sessions</p>
+          <div className="flex gap-2">
+            <div className="flex-1 px-2 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-center">
+              <p className="text-base font-bold text-gray-800 dark:text-gray-100">{sessions.length}</p>
+              <p className="text-[9px] text-gray-400 uppercase">Sess</p>
             </div>
-            <div className="px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
-              <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{activeSessions}</p>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wider">Active</p>
+            <div className="flex-1 px-2 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-center">
+              <p className="text-base font-bold text-emerald-600 dark:text-emerald-400">{activeSessions}</p>
+              <p className="text-[9px] text-gray-400 uppercase">Active</p>
             </div>
-            <div className="px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
-              <p className="text-lg font-bold text-violet-600 dark:text-violet-400">{actions.length}</p>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wider">Actions</p>
+            <div className="flex-1 px-2 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-center">
+              <p className="text-base font-bold text-violet-600 dark:text-violet-400">{actions.length}</p>
+              <p className="text-[9px] text-gray-400 uppercase">Acts</p>
             </div>
-            <div className="px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center gap-1.5">
-                <span className={`w-2 h-2 rounded-full ${connected ? "bg-emerald-500" : "bg-red-500"}`} />
-                <p className={`text-sm font-semibold ${connected ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
-                  {connected ? "Live" : "Off"}
-                </p>
-              </div>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wider">Stream</p>
+            <div className="flex-1 px-2 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-center">
+              <span className={`inline-block w-2 h-2 rounded-full ${connected ? "bg-emerald-500" : "bg-red-500"}`} />
+              <p className="text-[9px] text-gray-400 uppercase mt-0.5">{connected ? "Live" : "Off"}</p>
             </div>
           </div>
         </div>
@@ -127,7 +127,7 @@ export default function Dashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 min-w-0 flex flex-col">
         {/* Tab switcher */}
         <div className="flex items-center gap-1 px-6 pt-4 pb-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
           <button

@@ -68,7 +68,7 @@ export default function MessageBubble({ message }: Props) {
           <div
             className={`inline-block px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
               isUser
-                ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white rounded-2xl rounded-br-md shadow-sm shadow-violet-500/20"
+                ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white text-left rounded-2xl rounded-br-md shadow-sm shadow-violet-500/20"
                 : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-2xl rounded-bl-md border border-gray-200 dark:border-gray-700 shadow-sm"
             }`}
           >

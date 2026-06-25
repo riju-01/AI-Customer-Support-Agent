@@ -39,9 +39,9 @@ export default function SessionList({ sessions, selectedSession, onSelect }: Pro
                 : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
             }`}
           >
-            <div className="flex items-center justify-between mb-0.5">
-              <span className={`text-sm font-medium ${isActive ? "text-violet-700 dark:text-violet-400" : "text-gray-800 dark:text-gray-200"}`}>
-                {session.customer_name || `Session ${session.session_id}`}
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <span className={`text-sm font-medium truncate ${isActive ? "text-violet-700 dark:text-violet-400" : "text-gray-800 dark:text-gray-200"}`}>
+                {session.customer_name || `Session ${session.session_id.slice(0, 8)}`}
               </span>
               <span
                 className={`w-2 h-2 rounded-full flex-shrink-0 ${
@@ -49,16 +49,17 @@ export default function SessionList({ sessions, selectedSession, onSelect }: Pro
                 }`}
               />
             </div>
-            {session.order_number && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                {session.order_number}
-              </p>
-            )}
-            <p className="text-[10px] text-gray-400 mt-0.5">
-              {new Date(session.started_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-              {!session.customer_name && ` · #${session.session_id}`}
-            </p>
+            <div className="flex items-center gap-3 text-[11px] text-gray-500 dark:text-gray-400">
+              {session.order_number && (
+                <span className="flex items-center gap-1">
+                  <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                  {session.order_number}
+                </span>
+              )}
+              <span className="text-gray-400">
+                {new Date(session.started_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            </div>
           </button>
         );
       })}
