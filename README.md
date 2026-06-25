@@ -114,10 +114,6 @@ npm run dev
 
 ## Demo Scenarios
 
-See [TESTING_SCENARIOS.md](TESTING_SCENARIOS.md) for all 15 copy-paste test scenarios.
-
-### Key Scenarios
-
 | Customer | Order | Scenario | Expected Result |
 |----------|-------|----------|-----------------|
 | Alice Johnson | ORD-1001 | Defective headphones, within 7 days | Return scheduled, refund after inspection |
