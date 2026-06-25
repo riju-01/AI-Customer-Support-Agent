@@ -6,32 +6,40 @@ The agent enforces a strict 26-section refund policy, validates every request ag
 
 ## Architecture
 
-```
-┌──────────────────────────────────────────────────────┐
-│                  Frontend (Next.js)                   │
-│  ┌─────────────────┐     ┌────────────────────────┐  │
-│  │  Customer Chat   │     │   Admin Dashboard      │  │
-│  │  (SSE)           │     │   (SSE + REST)         │  │
-│  └────────┬────────┘     └───────────┬────────────┘  │
-└───────────┼──────────────────────────┼───────────────┘
-            │                          │
-┌───────────┼──────────────────────────┼───────────────┐
-│           ▼          Backend         ▼               │
-│  ┌─────────────────────────────────────────────┐     │
-│  │           FastAPI (Python)                   │     │
-│  │  ┌───────────────────────────────────────┐   │     │
-│  │  │       LangGraph Agent (ReAct loop)    │   │     │
-│  │  │  ┌─────────────────────────────────┐  │   │     │
-│  │  │  │     10 Tools (policy engine)    │  │   │     │
-│  │  │  └─────────────────────────────────┘  │   │     │
-│  │  └───────────────────────────────────────┘   │     │
-│  └─────────────────────────────────────────────┘     │
-│           │                                          │
-│  ┌────────┴────────┐  ┌──────────────────────────┐   │
-│  │  SQLite CRM DB  │  │  Refund Policy (26 sec)  │   │
-│  │  (15 profiles)  │  │  refund_policy.md        │   │
-│  └─────────────────┘  └──────────────────────────┘   │
-└──────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph Frontend["Frontend (Next.js + Tailwind)"]
+        Chat["Customer Chat UI"]
+        Admin["Admin Dashboard"]
+        Voice["Voice Pipeline<br/>STT: Web Speech API"]
+    end
+
+    subgraph Backend["Backend (FastAPI + Python)"]
+        API["FastAPI Server"]
+        subgraph Agent["LangGraph Agent (ReAct Loop)"]
+            LLM["Gemini 2.5 Flash"]
+            Tools["10 Tools<br/>Policy Engine"]
+        end
+        Logger["Reasoning Logger<br/>+ Action Tracker"]
+        TTS["ElevenLabs TTS Proxy"]
+    end
+
+    subgraph Data["Data Layer"]
+        DB["SQLite CRM DB<br/>15 Customer Profiles"]
+        Policy["Refund Policy<br/>26 Sections"]
+    end
+
+    Chat -->|"SSE"| API
+    Admin -->|"SSE + REST"| API
+    Voice -->|"Speech-to-Text"| Chat
+    Chat -->|"TTS Request"| TTS
+
+    API --> Agent
+    LLM <-->|"Tool Calls"| Tools
+    Tools --> DB
+    Tools --> Policy
+    Agent --> Logger
+    Logger -->|"Real-time Events"| Admin
 ```
 
 ## Features
